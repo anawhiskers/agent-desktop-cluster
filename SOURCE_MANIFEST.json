@@ -41,8 +41,8 @@
       "sha256": "7b2afc76abe78c608fded076902f180b8fbdd3621dd001310b628cff0fd3944d"
     },
     "docs/ACCEPTANCE.md": {
-      "bytes": 3409,
-      "sha256": "9a684a6383a8e9ac33fa267d4108a78b495f11f32414324671c58ae89cc3614a"
+      "bytes": 3704,
+      "sha256": "a1ee23e0b9b3cbb7f283593fc51f1d6a1c064414b8a21ab0f6b325146af00ba4"
     },
     "docs/FEATURE_STATUS.md": {
       "bytes": 4603,
@@ -57,12 +57,12 @@
       "sha256": "a9d2eadcef7908cb3143690c8ebaf735ddd5c72e62009de3296193926b74cd3d"
     },
     "docs/OPERATIONS.md": {
-      "bytes": 6321,
-      "sha256": "70df245505929a21ec3429b2b4d84b231ce1ea2354dbec960628d6e9f5dfb0f7"
+      "bytes": 7516,
+      "sha256": "053991e486a7e53c29808371ae30eb9b6724c2c5896ed903707636c812c87c0d"
     },
     "docs/TEST_EVIDENCE.md": {
-      "bytes": 3564,
-      "sha256": "517ae4f901cfceffbae78125e64ab36162f597ddaab0f1a7dba7a661485e9279"
+      "bytes": 3795,
+      "sha256": "878a27f233efeb31c301c56c96970e00745b559ca1a1668c72befb2eaa6307e6"
     },
     "licenses/Pillow-12.3.0.txt": {
       "bytes": 70307,
@@ -117,8 +117,8 @@
       "sha256": "fdc7a3b507de39357d01971ebff68941efe457f526ca2885d6574bdc6b347a40"
     },
     "src/diy_agent_stack/jobs.py": {
-      "bytes": 10944,
-      "sha256": "09dc71566f906a14028efe58732b4a08321dc2a6345e20af63fa76c4a013f4f1"
+      "bytes": 15824,
+      "sha256": "f69c6351be842e2204c93b247b2f8674a98f03223851cdd13dde2dbba47b6435"
     },
     "src/diy_agent_stack/server.py": {
       "bytes": 11349,
@@ -169,12 +169,12 @@
       "sha256": "fd129a8eaffe1c7ae863d7f0d433cc0fb7febe8ec24fe1adbbb50e1973b39d54"
     },
     "tests/process_fixture.py": {
-      "bytes": 3199,
-      "sha256": "8a451c06df5f48c479ba369af3b7dc71caf4b4f4af72ad224b54a2efc2e9ad49"
+      "bytes": 3677,
+      "sha256": "f5df60d70d989de010abdc5acaa996e23119350abc570d5f8e5df0f27db8d65a"
     },
     "tests/test_core.py": {
-      "bytes": 30076,
-      "sha256": "57c7ac2f4bc64eff36f6a920efdd7ff0c4fdba7d44530f6fcd541710e5cad681"
+      "bytes": 30204,
+      "sha256": "ecb72df4b0dd859ee4a8d00be468c8eec584a7103f7e7b4428ce02e0692e03a3"
     },
     "tests/test_mcp.py": {
       "bytes": 2872,
@@ -185,8 +185,12 @@
       "sha256": "4df394c6d8cb296e21ac026b54ec22662336880c6aebe2365e7a69c42fd2c705"
     },
     "tests/test_processes.py": {
-      "bytes": 10120,
-      "sha256": "fc63f83d7a6d400f58d6df821e56495523777c989f3876a81350b01769bb6e43"
+      "bytes": 12913,
+      "sha256": "e47cb205aedc4be5d48bdf65c864a01e527d4b1d795f417debb6b3cf8c405c6c"
+    },
+    "tests/test_retirement.py": {
+      "bytes": 11811,
+      "sha256": "9fc6acf63f5a9c849bff400a18ab13ee66b9069cc646f6a21ae9f5ed1bc797a4"
     }
   },
   "schema": 1

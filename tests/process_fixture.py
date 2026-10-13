@@ -41,7 +41,11 @@ def main():
             target.mkdir(mode=0o700, exist_ok=True)
             def simulated(argv, **options):
                 if argv[:3] == ["systemctl", "--user", "show"]:
-                    return SimpleNamespace(returncode=0, stdout="LoadState=loaded\nActiveState=active\nSubState=exited\n")
+                    if (target / "retirement-pause").exists():
+                        return SimpleNamespace(returncode=0, stdout="Id=" + argv[3] + "\nLoadState=loaded\nActiveState=failed\nSubState=failed\nMainPID=0\nControlPID=0\nControlGroup=\nTasksCurrent=[not set]\n")
+                    return SimpleNamespace(returncode=0, stdout="Id=" + argv[3] + "\nLoadState=loaded\nActiveState=active\nSubState=exited\n")
+                if (target / "retirement-pause").exists() and argv[2] != (target / "retirement-pause").read_text():
+                    return SimpleNamespace(returncode=0, stdout="")
                 (target / "started").write_text("public simulated job mutation")
                 time.sleep(4)
                 return SimpleNamespace(returncode=0, stdout="")

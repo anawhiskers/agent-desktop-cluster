@@ -197,8 +197,9 @@ class JobTests(Temporary):
         write_json(folder / "child-result.json", dict(shell_exited=True, cleanup_attempted=True, exit_code=0, output_truncated={}))
         write_private(folder / "stdout.log", b"public fixture")
         with self.state.db() as db:
-            self.state.begin(db, "job-001", "machine_start", "agent-a", {}, dict(action_id="job-001", status="running", unit="fixture.service"))
+            self.state.begin(db, "job-001", "machine_start", "agent-a", {}, dict(action_id="job-001", status="running", unit="diy-stack-job-001.service"))
         states = [dict(LoadState="loaded", ActiveState="active", SubState="exited"),
+                  dict(LoadState="not-found", MainPID="0", TasksCurrent="0"),
                   dict(LoadState="not-found", MainPID="0", TasksCurrent="0")]
         jobs.properties = lambda _: states.pop(0)
         jobs.run = lambda *args, **kwargs: SimpleNamespace(returncode=0)
@@ -212,7 +213,7 @@ class JobTests(Temporary):
         jobs = Jobs(self.config, self.state)
         with self.state.db() as db:
             self.state.begin(db, "job-001", "machine_start", "agent-a", {},
-                             dict(action_id="job-001", status="running", unit="fixture.service"))
+                             dict(action_id="job-001", status="running", unit="diy-stack-job-001.service"))
         def unavailable(_unit):
             raise RuntimeError("Synthetic unavailable manager")
         jobs.properties = unavailable
@@ -231,7 +232,7 @@ class JobTests(Temporary):
         write_json(folder / "child-result.json", dict(shell_exited=True, cleanup_attempted=True, exit_code=0, output_truncated={}))
         with self.state.db() as db:
             self.state.begin(db, "job-001", "machine_start", "agent-a", {},
-                             dict(action_id="job-001", status="running", unit="fixture.service"))
+                             dict(action_id="job-001", status="running", unit="diy-stack-job-001.service"))
         queried = []
         def properties(_unit):
             queried.append(True)
@@ -249,7 +250,7 @@ class JobTests(Temporary):
         jobs = Jobs(self.config, self.state)
         with self.state.db() as db:
             self.state.begin(db, "job-001", "machine_start", "agent-a", {},
-                             dict(action_id="job-001", status="running", unit="fixture.service"))
+                             dict(action_id="job-001", status="running", unit="diy-stack-job-001.service"))
         def unavailable(argv, **kwargs):
             raise subprocess.TimeoutExpired(argv, kwargs["timeout"])
         jobs.run = unavailable
@@ -273,7 +274,7 @@ class JobTests(Temporary):
                 if operation != "start":
                     with state.db() as db:
                         state.begin(db, "job-001", "machine_start", "agent-a", {},
-                                    dict(action_id="job-001", status="running", unit="fixture.service"))
+                                    dict(action_id="job-001", status="running", unit="diy-stack-job-001.service"))
                 if operation == "receipt":
                     folder = private_directory(jobs.root / "job-001")
                     write_json(folder / "child-result.json", dict(shell_exited=True, cleanup_attempted=True, exit_code=0, output_truncated={}))

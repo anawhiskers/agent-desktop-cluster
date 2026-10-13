@@ -153,7 +153,7 @@ class ProcessCancellationTests(unittest.TestCase):
                 if method != "machine_start":
                     with state.db() as db:
                         state.begin(db, "job-001", "machine_start", "fixture-agent", {},
-                                    dict(action_id="job-001", status="running", unit="fixture.service"))
+                                    dict(action_id="job-001", status="running", unit="diy-stack-job-001.service"))
                 if method == "machine_receipt":
                     folder = private_directory(private_directory(state.root / "jobs") / "job-001")
                     write_json(folder / "child-result.json", dict(shell_exited=True, cleanup_attempted=True, exit_code=0, output_truncated={}))
@@ -178,6 +178,44 @@ class ProcessCancellationTests(unittest.TestCase):
                                     run=lambda *args, **kwargs: self.fail("Following job must not launch"))
                         with self.assertRaises(ValueError):
                             jobs.start(dict(action_id="job-002", agent_id="fixture-agent", command="true", timeout_seconds=30))
+                    finally:
+                        if process.returncode is None:
+                            process.kill()
+                            await process.wait()
+                        await asyncio.gather(communicating, return_exceptions=True)
+                asyncio.run(check())
+
+    def test_retirement_retry_worker_loss_cannot_reuse_previous_acknowledgements(self):
+        for index, (stage, hard_kill) in enumerate((("stop", False), ("stop", True),
+                                                   ("reset-failed", False), ("reset-failed", True)), 1):
+            with self.subTest(stage=stage, hard_kill=hard_kill):
+                host = self.host("HOST" + str(index).zfill(2), mode="job-worker")
+                target = private_directory(self.root / host.id)
+                (target / "retirement-pause").write_text(stage)
+                state = State(self.root / (host.id + "-state"))
+                with state.db() as db:
+                    state.begin(db, "job-001", "machine_start", "fixture-agent", {},
+                                dict(action_id="job-001", status="unknown_outcome", unit="diy-stack-job-001.service",
+                                     execution_status="completed_nonzero", exit_code=9, effect_verified=False,
+                                     stop_acknowledged=True, cancel_acknowledged=True, cleanup_acknowledged=True,
+                                     failed_unit_retirement_acknowledged=True))
+                async def check():
+                    process = await asyncio.create_subprocess_exec(*host.worker_argv, stdin=asyncio.subprocess.PIPE,
+                              stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.DEVNULL)
+                    communicating = asyncio.create_task(process.communicate(json.dumps(dict(method="machine_receipt", payload={"action_id": "job-001"})).encode()))
+                    try:
+                        await self.started([host.id])
+                        process.kill() if hard_kill else process.terminate()
+                        await asyncio.wait_for(communicating, 6)
+                        result = state.receipt("job-001")
+                        self.assertEqual(result["status"], "unknown_outcome")
+                        self.assertEqual(result["execution_status"], "completed_nonzero")
+                        self.assertEqual(result["exit_code"], 9)
+                        self.assertFalse(result["cleanup_acknowledged"])
+                        self.assertFalse(result["cancel_acknowledged"])
+                        self.assertFalse(result["failed_unit_retirement_acknowledged"])
+                        self.assertEqual(result["stop_acknowledged"], stage == "reset-failed")
+                        self.assertFalse(result["effect_verified"])
                     finally:
                         if process.returncode is None:
                             process.kill()

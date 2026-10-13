@@ -34,6 +34,10 @@ values are deliberately labeled; no fixture interaction sends real input.
 4. Run a harmless systemd user job, disconnect the client, reconnect and read the
    same receipt. Verify bounded output, exit status, process-group cleanup and
    actual target effect. Test timeout/cancel without important data involved.
+   Also test a harmless nonzero exit whose failed unit remains loaded: verify an
+   exact stop, empty-group proof and exact `reset-failed`, with its nonzero exit
+   retained in the receipt. A cleanup-only retry must never launch it again or
+   change an uncertain action into a verified result.
 5. On separate scratch hosts, dispatch at most four independent jobs/observations.
    Verify each result belongs to the right host and no uncertain mutation retries.
 6. Claim a short exclusive hold, verify another agent is refused, renew/release

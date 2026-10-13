@@ -11,6 +11,7 @@ import time
 from .common import encoded, identifier, load_private_json, private_directory, public_text, write_json, write_private
 
 OUTPUT_BYTES = 16384
+CGROUP_ROOT = Path("/sys/fs/cgroup")
 
 
 class Jobs:
@@ -20,14 +21,93 @@ class Jobs:
 
     def properties(self, unit):
         result = self.run(["systemctl", "--user", "show", unit, "--no-pager",
-                           "--property=LoadState,ActiveState,SubState,Result,ExecMainCode,ExecMainStatus,MainPID,TasksCurrent"],
+                           "--property=Id,LoadState,ActiveState,SubState,Result,ExecMainCode,ExecMainStatus,MainPID,ControlPID,TasksCurrent,ControlGroup"],
                           capture_output=True, text=True, timeout=8)
         values = dict(line.split("=", 1) for line in result.stdout.splitlines() if "=" in line)
         if result.returncode and values.get("LoadState") != "not-found":
             raise RuntimeError("User service manager is unavailable")
         if not values.get("LoadState") or values["LoadState"] != "not-found" and not {"ActiveState", "SubState"} <= set(values):
             raise RuntimeError("User service-manager state is incomplete")
+        if values.get("Id", unit) != unit:
+            raise RuntimeError("The manager returned a different primary unit identity")
         return values
+
+    def owned_unit(self, action, result):
+        unit = "diy-stack-" + identifier(action) + ".service"
+        if result.get("action_id") != action or result.get("unit") != unit:
+            raise ValueError("Receipt identity does not match its owned job unit")
+        return unit
+
+    def empty_group(self, values, unit):
+        if values.get("LoadState") == "not-found":
+            return True
+        if (values.get("LoadState") != "loaded" or values.get("ActiveState") not in ("inactive", "failed")
+                or values.get("MainPID") != "0" or values.get("ControlPID") != "0"):
+            return False
+        tasks, group = values.get("TasksCurrent"), values.get("ControlGroup")
+        if tasks != "0" and tasks not in (None, "", "[not set]"):
+            return False
+        if group == "":
+            return True
+        if (not isinstance(group, str) or not group.startswith("/") or len(group) > 4096 or "\0" in group
+                or any(part in ("", ".", "..") for part in group.split("/")[1:])
+                or Path(group).name != unit):
+            return False
+        if not (CGROUP_ROOT / "cgroup.controllers").is_file():
+            return tasks == "0"
+        directory = CGROUP_ROOT / group.lstrip("/")
+        if directory.is_symlink() or not directory.resolve().is_relative_to(CGROUP_ROOT.resolve()):
+            return False
+        try:
+            rows = [line.split() for line in (directory / "cgroup.events").read_text().splitlines()]
+            if any(len(row) != 2 for row in rows) or len({row[0] for row in rows}) != len(rows):
+                return False
+            events = dict(rows)
+            return events.get("populated") == "0"
+        except FileNotFoundError:
+            return not directory.exists()
+        except (OSError, ValueError):
+            return False
+
+    def retire(self, action, result, observed=None):
+        unit = self.owned_unit(action, result)
+        result.update(stop_acknowledged=False, cancel_acknowledged=False, cleanup_acknowledged=False,
+                      failed_unit_retirement_acknowledged=False, failed_unit_retirement_attempted=False,
+                      service_state_unverified=True)
+        result.pop("failed_unit_retirement_precheck", None)
+        result.pop("cleanup_next_step", None)
+        with self.state.db() as db:
+            self.state.finish(db, action, result)
+        observed = self.properties(unit) if observed is None else observed
+        if observed.get("LoadState") == "not-found":
+            result.update(cleanup_acknowledged=True, cleanup_state=observed, service_state_unverified=False)
+            return True
+        stopped = self.run(["systemctl", "--user", "stop", unit], capture_output=True, timeout=12)
+        result["stop_acknowledged"] = stopped.returncode == 0
+        if not result["stop_acknowledged"]:
+            return False
+        values = self.properties(unit)
+        result["cleanup_state"] = values
+        if not self.empty_group(values, unit):
+            return False
+        if values.get("ActiveState") == "failed":
+            # Preserve the main result and empty-group proof before clearing failed metadata.
+            result["failed_unit_retirement_precheck"] = dict(values, process_group_empty=True)
+            result["failed_unit_retirement_acknowledged"] = False
+            result["failed_unit_retirement_attempted"] = True
+            with self.state.db() as db:
+                self.state.finish(db, action, result)
+            reset = self.run(["systemctl", "--user", "reset-failed", unit], capture_output=True, timeout=8)
+            result["failed_unit_retirement_acknowledged"] = reset.returncode == 0
+            if not result["failed_unit_retirement_acknowledged"]:
+                return False
+            values = self.properties(unit)
+            result["cleanup_state"] = values
+            if values.get("ActiveState") == "failed":
+                return False
+        result["cleanup_acknowledged"] = self.empty_group(values, unit)
+        result["service_state_unverified"] = not result["cleanup_acknowledged"]
+        return result["cleanup_acknowledged"]
 
     def start(self, payload):
         action, agent = identifier(payload["action_id"]), identifier(payload["agent_id"], 48)
@@ -79,33 +159,43 @@ class Jobs:
             raise ValueError("include_output must be boolean")
         action = identifier(action)
         result = self.state.receipt(action)
-        if "unit" not in result:
-            raise ValueError("This is not a machine job")
+        unit = self.owned_unit(action, result)
         folder = self.root / action
-        if result["status"] in ("starting", "running"):
+        previous_status = result["status"]
+        polling = previous_status in ("starting", "running")
+        if polling or previous_status in ("completed", "completed_nonzero", "unknown_outcome", "owner_reconciled"):
             try:
-                systemd = self.properties(result["unit"])
+                systemd = self.properties(unit)
                 result["systemd"] = systemd
+                result["cleanup_only_reconciliation"] = not polling
                 if systemd.get("LoadState") == "not-found":
-                    result["status"] = "unknown_outcome"
+                    result.update(status="unknown_outcome" if polling else previous_status,
+                                  cleanup_acknowledged=True, cleanup_state=systemd, service_state_unverified=False)
                 elif systemd.get("ActiveState") in ("inactive", "failed") or systemd.get("SubState") == "exited":
-                    terminal = load_private_json(folder / "child-result.json") if (folder / "child-result.json").exists() else None
-                    if terminal and terminal.get("shell_exited") and terminal.get("cleanup_attempted"):
-                        result.update(status="completed" if terminal["exit_code"] == 0 else "completed_nonzero",
-                                      exit_code=terminal["exit_code"], output_truncated=terminal["output_truncated"])
-                    else:
-                        result["status"] = "unknown_outcome"
-                    terminal_status = result["status"]
+                    terminal_status = previous_status
+                    if polling:
+                        try:
+                            terminal = load_private_json(folder / "child-result.json")
+                        except (OSError, ValueError):
+                            terminal = None
+                        if (isinstance(terminal, dict) and terminal.get("shell_exited") is True
+                                and terminal.get("cleanup_attempted") is True
+                                and type(terminal.get("exit_code")) is int and 0 <= terminal["exit_code"] <= 255):
+                            terminal_status = "completed" if terminal["exit_code"] == 0 else "completed_nonzero"
+                            result.update(exit_code=terminal["exit_code"], output_truncated=terminal.get("output_truncated", {}))
+                        else:
+                            terminal_status = "unknown_outcome"
+                    result["execution_status"] = result.get("execution_status", terminal_status)
                     result.update(status="unknown_outcome", cleanup_acknowledged=False, service_state_unverified=True)
                     with self.state.db() as db:
                         self.state.finish(db, action, result)
-                    stopped = self.run(["systemctl", "--user", "stop", result["unit"]], capture_output=True, timeout=12)
-                    cleanup = self.properties(result["unit"])
-                    result["cleanup_acknowledged"] = (stopped.returncode == 0 and cleanup.get("MainPID", "0") == "0"
-                                                       and cleanup.get("TasksCurrent", "0") == "0")
-                    result["status"] = terminal_status if result["cleanup_acknowledged"] else "unknown_outcome"
-                    result["service_state_unverified"] = not result["cleanup_acknowledged"]
+                    if self.retire(action, result, systemd):
+                        result["status"] = terminal_status
                     result["finished_at"] = time.time()
+                elif not polling:
+                    result.setdefault("execution_status", previous_status)
+                    result.update(status="unknown_outcome", cleanup_acknowledged=False, service_state_unverified=True,
+                                  cleanup_next_step="The recorded terminal unit is active; inspect it before exact cancellation")
             except (OSError, ValueError, RuntimeError, subprocess.TimeoutExpired):
                 result.update(status="unknown_outcome", cleanup_acknowledged=False, service_state_unverified=True)
             except (KeyboardInterrupt, SystemExit):
@@ -130,18 +220,18 @@ class Jobs:
         return result
 
     def cancel(self, action: str):
-        result = self.state.receipt(identifier(action))
-        if "unit" not in result:
-            raise ValueError("This is not a machine job")
+        action = identifier(action)
+        result = self.state.receipt(action)
+        self.owned_unit(action, result)
         # A lost worker must leave a fence before it asks the service manager to stop anything.
         result.update(status="unknown_outcome", cancel_acknowledged=False, cleanup_acknowledged=False,
                       service_state_unverified=True, next_step="Inspect partial effects before a new action")
         with self.state.db() as db:
             self.state.finish(db, action, result)
         try:
-            stopped = self.run(["systemctl", "--user", "stop", result["unit"]], capture_output=True, timeout=12)
-            result["cancel_acknowledged"] = stopped.returncode == 0
-        except (OSError, subprocess.TimeoutExpired):
+            self.retire(action, result)
+            result["cancel_acknowledged"] = result["stop_acknowledged"]
+        except (OSError, ValueError, RuntimeError, subprocess.TimeoutExpired):
             pass
         except (KeyboardInterrupt, SystemExit):
             result.update(cancel_acknowledged=False, interrupted=True)

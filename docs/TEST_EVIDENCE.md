@@ -6,7 +6,7 @@ was controlled or real vault account was used.
 
 | Check | Result |
 | --- | --- |
-| Python fixture suite | 45 tests passed |
+| Python fixture suite | 56 tests passed |
 | Actual MCP stdio protocol | Initialize, list 22 tools, startup brief and disabled local worker status passed |
 | Native/systemd behavior | Mocked fixtures; real host acceptance still required |
 | Public shell child | Public synthetic output drained, capped and cleaned in a temporary directory |
@@ -14,6 +14,7 @@ was controlled or real vault account was used.
 | Protected-input role changes | Final and later-segment role changes blocked further dispatch, consumed references and preserved uncertain receipts; valid username/password controls passed |
 | Service-manager failures | Unavailable manager, failed cleanup queries and a timed-out cancel persisted uncertainty, withheld cleanup acknowledgement and fenced later jobs |
 | Interrupted job mutations | Launch/cancel/receipt cleanup persisted uncertainty and re-raised interrupts; actual worker SIGTERM and cancel SIGKILL fixtures preserved the next-job fence |
+| Failed-unit retirement | Exact unit identity, zero main/control PIDs, empty/unpopulated groups, unavailable task counts, reset timeouts and cleanup-only retries passed; worker TERM/KILL could not reuse earlier acknowledgements |
 | Presentation helpers | 11 Node assertions passed |
 | Browser JavaScript | Studio and motion module syntax passed |
 | Public-tree scanner | Passed common-artifact and task-specific privacy patterns |

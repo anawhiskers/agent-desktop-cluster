@@ -71,6 +71,24 @@ Launches, cancellations and terminal group cleanup persist uncertainty before
 asking the service manager to mutate state. An interrupted worker leaves that
 fence in place until the owner inspects the exact unit and its partial effects.
 
+Reading a terminal receipt again may retry cleanup of its exact `diy-stack-` job
+unit. It never launches the script again. A failed unit can retain an unavailable
+task count after its processes stop. Cleanup requires zero main and control PIDs,
+a stopped unit, and either an explicitly empty control group or proof that the
+exact group is unpopulated. A positive or malformed task count refuses cleanup.
+For cgroup v2, the worker reads the exact group's `cgroup.events`; it never clears
+a populated or unverified group. Where that interface is absent, a nonempty group
+also requires an explicit zero task count.
+
+After an acknowledged exact stop and empty-group proof, the worker may call
+`reset-failed` for that one failed unit, then verify the result again. This clears
+the manager's retained failure metadata while the receipt preserves the original
+exit code and execution status. A cleanup timeout or failed proof leaves
+`unknown_outcome`. A later cleanup-only retry can acknowledge process cleanup;
+it cannot resolve the action's effects or clear that uncertainty. Each external
+retry first persists fresh false acknowledgements, so worker loss cannot reuse
+an earlier attempt's success.
+
 After manual inspection and private backup, the owner may mark an uncertain action
 as reconciled. This records the owner's confirmation; it does not run or undo it:
 
