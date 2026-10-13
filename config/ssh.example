@@ -1,0 +1,14 @@
+# Keep real addresses, login names and key paths in your private SSH config.
+# Add one block per configured worker. Verify host fingerprints out of band.
+Host stack-host02
+    HostName YOUR_HOST_ADDRESS
+    User YOUR_LINUX_USER
+    IdentityFile /path/to/your/private/key
+    IdentitiesOnly yes
+    BatchMode yes
+    StrictHostKeyChecking yes
+    ServerAliveInterval 5
+    ServerAliveCountMax 2
+
+# Owner-run VNC tunnel example after the local block is configured:
+# ssh -N -L 5902:127.0.0.1:5901 stack-host02

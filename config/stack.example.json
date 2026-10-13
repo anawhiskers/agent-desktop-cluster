@@ -1,0 +1,73 @@
+{
+  "schema": 1,
+  "hosts": [
+    {
+      "id": "HOST01",
+      "label": "HOST01",
+      "description": "Linux coordinator and desktop",
+      "transport": "local",
+      "worker_argv": ["/opt/diy-agent-stack/.venv/bin/diy-stack", "worker", "--config", "/path/to/worker.json"],
+      "vnc_websocket": null
+    },
+    {
+      "id": "HOST02",
+      "label": "HOST02",
+      "description": "Linux worker",
+      "transport": "ssh",
+      "ssh_target": "stack-host02",
+      "ssh_config": "~/.ssh/config",
+      "worker_argv": ["/opt/diy-agent-stack/.venv/bin/diy-stack", "worker", "--config", "/path/to/worker.json"],
+      "vnc_websocket": null
+    },
+    {
+      "id": "HOST03",
+      "label": "HOST03",
+      "description": "Linux worker",
+      "transport": "ssh",
+      "ssh_target": "stack-host03",
+      "ssh_config": "~/.ssh/config",
+      "worker_argv": ["/opt/diy-agent-stack/.venv/bin/diy-stack", "worker", "--config", "/path/to/worker.json"],
+      "vnc_websocket": null
+    },
+    {
+      "id": "HOST04",
+      "label": "HOST04",
+      "description": "Linux worker",
+      "transport": "ssh",
+      "ssh_target": "stack-host04",
+      "ssh_config": "~/.ssh/config",
+      "worker_argv": ["/opt/diy-agent-stack/.venv/bin/diy-stack", "worker", "--config", "/path/to/worker.json"],
+      "vnc_websocket": null
+    },
+    {
+      "id": "HOST05",
+      "label": "HOST05",
+      "description": "Linux worker",
+      "transport": "ssh",
+      "ssh_target": "stack-host05",
+      "ssh_config": "~/.ssh/config",
+      "worker_argv": ["/opt/diy-agent-stack/.venv/bin/diy-stack", "worker", "--config", "/path/to/worker.json"],
+      "vnc_websocket": null
+    },
+    {
+      "id": "HOST06",
+      "label": "HOST06",
+      "description": "Linux worker",
+      "transport": "ssh",
+      "ssh_target": "stack-host06",
+      "ssh_config": "~/.ssh/config",
+      "worker_argv": ["/opt/diy-agent-stack/.venv/bin/diy-stack", "worker", "--config", "/path/to/worker.json"],
+      "vnc_websocket": null
+    },
+    {
+      "id": "HOST07",
+      "label": "HOST07",
+      "description": "Linux worker",
+      "transport": "ssh",
+      "ssh_target": "stack-host07",
+      "ssh_config": "~/.ssh/config",
+      "worker_argv": ["/opt/diy-agent-stack/.venv/bin/diy-stack", "worker", "--config", "/path/to/worker.json"],
+      "vnc_websocket": null
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800">
+<rect width="1280" height="800" fill="#101520"/><rect x="110" y="90" width="1060" height="600" rx="14" fill="#202636" stroke="#68768c"/>
+<rect x="110" y="90" width="1060" height="40" rx="14" fill="#313b4e"/><text x="140" y="118" fill="#e3e8ef" font-family="sans-serif" font-size="18">Public fixture · no connected computer</text>
+<text x="155" y="185" fill="#c3d7cd" font-family="monospace" font-size="20">HOST01</text>
+<text x="155" y="235" fill="#e3e8ef" font-family="monospace" font-size="20">Example desktop for reviewing layout and presence.</text>
+<text x="155" y="285" fill="#e3e8ef" font-family="monospace" font-size="20">Controls do not execute in fixture mode.</text>
+<text x="155" y="620" fill="#f3d29c" font-family="sans-serif" font-size="16">Real X11, VNC, vault and job acceptance checks must run on your own host.</text>
+</svg>

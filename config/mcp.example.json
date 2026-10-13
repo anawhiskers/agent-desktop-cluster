@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "diy-agent-stack": {
+      "command": "/path/to/diy-agent-stack/.venv/bin/diy-stack",
+      "args": ["server", "--config", "/path/to/private/stack.json"]
+    }
+  }
+}

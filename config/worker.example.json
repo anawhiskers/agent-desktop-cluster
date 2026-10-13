@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "host": "HOST01",
+  "state_directory": "~/.local/state/diy-agent-stack",
+  "desktop": {
+    "enabled": false,
+    "dedicated_session": true,
+    "display": ":1",
+    "xauthority": "~/.Xauthority",
+    "session_id": "replace-with-a-fresh-session-id",
+    "origin_adapter": []
+  },
+  "vault": {
+    "enabled": false,
+    "bw_command": "/usr/local/bin/bw",
+    "runtime_directory": "$XDG_RUNTIME_DIR/diy-agent-stack-vault"
+  }
+}

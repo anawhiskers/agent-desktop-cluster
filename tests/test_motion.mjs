@@ -1,0 +1,21 @@
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+
+const source = await readFile(new URL('../src/diy_agent_stack/web/motion_v68.js', import.meta.url), 'utf8');
+const module = await import('data:text/javascript;base64,' + Buffer.from(source).toString('base64'));
+const presentation = module.presencePresentation({label: 'Fixture\u0000 agent', preset: 'mint', phase: 'working'});
+assert.equal(presentation.name, 'Fixture agent');
+assert.equal(presentation.color, '#62e5c5');
+assert.equal(presentation.working, true);
+assert.equal(module.presencePresentation({preset: 'invalid', color: 'url(fake)'}).color, '#b49cff');
+assert.equal(module.presencePresentation({label: 'x'.repeat(200)}).name.length, 60);
+assert.deepEqual(module.cursorStep(null, {x: 1, y: 2}, 16), {x: 1, y: 2, settled: true});
+const position = module.cursorStep({x: 0, y: 0}, {x: 100, y: 100}, 16);
+assert.ok(position.x > 0 && position.x < 100);
+assert.deepEqual(module.cursorStep(position, {x: 100, y: 100}, 16, {snap: true}), {x: 100, y: 100, settled: true});
+const budget = module.createMotionBudget();
+for (const now of [100, 140, 180]) budget.sample(now, {active: true});
+assert.equal(budget.sample(220, {active: true}).low, true);
+assert.equal(module.workStatusEntries({version: 67, reservations: [{mode: 'exclusive'}]}).length, 0);
+assert.equal(module.workStatusEntries({version: 68, reservations: [{mode: 'exclusive', scope: 'desktop', expires: 2000, label: 'Fixture'}]}, 1000).length, 1);
+console.log('PASS: 11 portable presentation assertions');

@@ -1,0 +1,32 @@
+/* Interaction supplies the motion; a still desktop stays still. */
+.collab-cursor.is-active .collab-focus,.collab-cursor.is-typing .collab-caret,.presence-chip.is-working:before,.typing-dots b,.wall-actor.is-working:before{animation:none!important}
+.collab-cursor{transition:none;filter:drop-shadow(0 2px 3px #08031866)}
+.collab-cursor svg{transition:filter .14s,opacity .14s}
+.collab-label{max-width:180px;overflow:hidden;text-overflow:ellipsis;backdrop-filter:none;background:linear-gradient(135deg,color-mix(in srgb,var(--cursor-color) 88%,white),var(--cursor-color));box-shadow:inset 0 1px 0 #ffffff80,0 3px 9px #0e022744}
+.collab-label:after{content:none!important}
+.collab-cursor[data-presence-state='Typing'] .collab-label:after{content:' · typing'!important;font-weight:500}
+.collab-cursor[data-presence-state='Protected input'] .collab-label:after{content:' · protected input'!important;font-weight:500}
+.presence-chip{display:inline-flex;align-items:center;gap:7px;padding:5px 9px;border-radius:10px;background:linear-gradient(135deg,color-mix(in srgb,var(--cursor-color) 14%,transparent),#ffffff04);box-shadow:inset 0 1px 0 #ffffff15;line-height:1.2}
+.presence-chip:before{margin-right:0;box-shadow:none;flex:0 0 6px}
+.presence-name{font-weight:650;max-width:130px;overflow:hidden;text-overflow:ellipsis}
+.presence-state{font-size:9px;color:#eadbef;font-weight:500;border-left:1px solid #ffffff25;padding-left:7px}
+.presence-chip.is-working{box-shadow:inset 0 1px 0 #ffffff25}
+.work-status-chip{display:inline-flex;align-items:center;gap:7px;flex-shrink:0;border-radius:10px;padding:5px 9px;border:1px solid #d9c4ef30;background:#d9c4ef0b;white-space:nowrap;font-size:10px;color:#eedcf5;max-width:100%;overflow:hidden}
+.work-status-chip strong{max-width:100px;overflow:hidden;text-overflow:ellipsis;font-weight:650}.work-status-chip time{font-size:9px;opacity:.75}.work-status-exclusive{border-color:#ffd47865;color:#ffe4a6;background:#ffd4780e}.work-status-shared{border-color:#62e5c546}.work-status-background{border-style:dashed;color:#d8cae4}
+/* Finite, shallow movement keeps hit targets and desktop pixels stationary. */
+.dock button{transition:transform .18s cubic-bezier(.22,.84,.36,1),background .18s,box-shadow .18s}
+.dock button:hover:not(:disabled){transform:translateY(-3px) scale(1.035);box-shadow:inset 0 1px 0 #ffffff38,0 4px 12px #13051e40}.dock button:active:not(:disabled){transform:translateY(0) scale(.97)}
+#mode-indicator{transition:width .24s cubic-bezier(.2,.8,.3,1),transform .28s cubic-bezier(.2,.8,.3,1);box-shadow:inset 0 1px 0 #fff9,inset 0 -1px 0 #9b65c733,0 3px 10px #210b3a44}
+.motion-low .collab-cursor svg{filter:none;transition:none}.motion-low .collab-trail{display:none}.motion-low .glass{backdrop-filter:none;-webkit-backdrop-filter:none}.motion-low .dock button:hover:not(:disabled){transform:none}.motion-low #mode-indicator,.motion-low .dock button{transition:none}
+@media(prefers-reduced-motion:reduce){.collab-cursor svg,.dock button,#mode-indicator{transition:none!important}.dock button:hover:not(:disabled){transform:none}.collab-trail{display:none}}
+@media(max-width:680px){.presence-chip{gap:5px;padding:5px 7px}.presence-name{max-width:92px}.presence-state{padding-left:5px}.collab-label{max-width:135px}}
+
+.work-status-unresolved{border-color:#ffd47855;color:#ffe4a6;border-style:dashed}
+
+/* A compact glass control retains V67's dark studio palette and geometry. */
+.mode-switch{border-radius:12px;background:#dcebd708;box-shadow:inset 0 1px 0 #ffffff0e}
+.mode-switch button{border-radius:9px}
+#mode-indicator{top:4px!important;bottom:4px;height:auto!important;border-radius:9px;background:linear-gradient(140deg,#dcead82d,#bcd2c512);border:1px solid #dcebd729;box-shadow:inset 0 1px 0 #ffffff30,0 2px 7px #0003}
+.dock{background-image:radial-gradient(160px circle at var(--light-x,50%) var(--light-y,50%),#c8e2d21a,transparent 80%),linear-gradient(125deg,#f6fff50b,#98bcb006);backdrop-filter:blur(14px) saturate(130%);-webkit-backdrop-filter:blur(14px) saturate(130%)}
+.motion-low .dock{background-image:none}
+@media(prefers-reduced-transparency:reduce){.dock{background-image:none;backdrop-filter:none;-webkit-backdrop-filter:none}}

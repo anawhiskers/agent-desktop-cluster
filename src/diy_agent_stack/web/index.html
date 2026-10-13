@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DIY Agent Stack · Desktop Studio</title>
+<link rel="stylesheet" href="/studio.css"><link rel="stylesheet" href="/motion_v68.css"><link rel="stylesheet" href="/portable.css">
+<div class="shell">
+ <aside class="glass sidebar"><div class="brand"><div><strong>Desktop Studio</strong><span>DIY Agent Stack</span></div></div>
+  <p class="section-label">Your computers</p><nav id="machines" aria-label="Configured computers"></nav>
+  <div class="sidebar-bottom"><p>Owner-run tools<br><small id="fixture-label">Checking connection</small></p></div>
+ </aside>
+ <main class="workspace"><header class="glass titlebar"><div><h1 id="host-name">Choose a computer</h1><p id="host-description">Configured hosts only</p></div>
+  <select id="compact-machine" aria-label="Computer"></select>
+  <div class="mode-switch" aria-label="Desktop mode"><button data-mode="watch" class="selected">Watch</button><button data-mode="control" disabled>Take control</button><button disabled title="Together needs a verified native human-input hook">Together</button></div>
+ </header>
+ <p id="demo-banner" hidden>Fixture demo. Screens, presence and history below are examples. No host is connected.</p>
+ <div id="work-state" class="portable-state" role="status"></div>
+ <div class="desktop-frame"><div id="screen"></div><div id="presence-layer" class="presence-layer" aria-label="Agent cursors"></div></div>
+ <div id="presence-roster" class="presence-roster" aria-label="Agent presence"></div>
+ <div class="status-line"><p id="status" role="status">Connecting</p></div>
+ <nav class="glass dock" aria-label="Desktop actions"><button id="reconnect">Reconnect</button><button id="history">History</button><button id="workspace-add">Add view</button><button id="fit">Native size</button><button id="fullscreen">Full screen</button></nav>
+ <div id="secondary-views" class="secondary-views" aria-label="Additional desktop views"></div>
+ </main>
+</div>
+<dialog id="history-dialog" class="glass sheet history-sheet"><div class="sheet-heading"><h2>Action history</h2><button class="close-dialog" aria-label="Close history">Close</button></div><p>Metadata only. Input sent does not prove the app finished the task.</p><div id="action-history"></div></dialog>
+<dialog id="vnc-dialog" class="glass sheet"><form id="vnc-form" method="dialog"><h2>VNC password</h2><p>Enter it yourself. It stays in this browser connection.</p><label for="vnc-password">Password</label><input id="vnc-password" type="password" autocomplete="off" required><button value="connect">Connect</button><button value="cancel" formnovalidate>Cancel</button></form></dialog>
+<dialog id="views-dialog" class="glass sheet"><div class="sheet-heading"><h2>Add a watch view</h2><button class="close-dialog">Close</button></div><p>Up to four views. Additional views stay read-only.</p><div id="view-options"></div></dialog>
+<script type="module" src="/studio.js"></script></html>
