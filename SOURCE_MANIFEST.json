@@ -5,8 +5,8 @@
       "sha256": "3cd439262509c7ef62ea904cfe27bb366f9d47b979df5c13ebc4f3f615997764"
     },
     "AIAGENT_SETUP.md": {
-      "bytes": 8817,
-      "sha256": "0198bef221eb103d772df1b9e3be32ceee29c7961126ec0ac3b3fa7bddd42916"
+      "bytes": 9145,
+      "sha256": "a969ddd8bdb4fdd4cd6702107e914cd3eb3c7f2d64c508f2dcc4cb54f85189d4"
     },
     "LICENSE": {
       "bytes": 1085,
@@ -43,6 +43,10 @@
     "docs/ACCEPTANCE.md": {
       "bytes": 3704,
       "sha256": "a1ee23e0b9b3cbb7f283593fc51f1d6a1c064414b8a21ab0f6b325146af00ba4"
+    },
+    "docs/CLOSED_SQLITE_BACKUPS.md": {
+      "bytes": 4224,
+      "sha256": "2ad038d1b8645ee0c4707fedad25f4a2ca8c6d33dbcc321e9fd15b1e5c866dbf"
     },
     "docs/FEATURE_STATUS.md": {
       "bytes": 4603,
@@ -191,6 +195,18 @@
     "tests/test_retirement.py": {
       "bytes": 11811,
       "sha256": "9fc6acf63f5a9c849bff400a18ab13ee66b9069cc646f6a21ae9f5ed1bc797a4"
+    },
+    "tools/closed-sqlite-backup/README.md": {
+      "bytes": 6868,
+      "sha256": "35ef557aeb805bbe24e64c536b73b1e3708cc01df840b72b4a4576b2c4f8c80a"
+    },
+    "tools/closed-sqlite-backup/archive_backup.py": {
+      "bytes": 21214,
+      "sha256": "29d7da53eb438ef3aac11a9e53df9ac8e6c7a0d9cb4567d1582653c7ca0b98a2"
+    },
+    "tools/closed-sqlite-backup/test_archive_backup.py": {
+      "bytes": 15194,
+      "sha256": "695c588cffffd4acc94d2e1fc3042e506359c056d235985d098e983cf3284eea"
     }
   },
   "schema": 1
